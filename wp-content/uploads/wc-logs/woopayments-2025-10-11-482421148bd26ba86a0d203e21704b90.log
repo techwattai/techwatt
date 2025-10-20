@@ -1,0 +1,27 @@
+2025-10-11T08:12:27+00:00 INFO 68ea116a6dd99-0001 API REQUEST (68ea116bc23a3): GET https://public-api.wordpress.com/wpcom/v2/wcpay/woopay/compatibility?test_mode=1 CONTEXT: {"WP_USER":"Guest (non logged-in user)","HTTP_REFERER":"--","HTTP_USER_AGENT":"WordPress/6.8.3; http://localhost/techwatt","REQUEST_URI":"/techwatt/wp-cron.php?doing_wp_cron=1760170345.1945850849151611328125","DOING_AJAX":"","DOING_CRON":"1","WP_CLI":"","WOOPAYMENTS_MODE":"test","request":{"url":"https://public-api.wordpress.com/wpcom/v2/wcpay/woopay/compatibility?test_mode=1","method":"GET","headers":{"Content-Type":"application/json; charset=utf-8","User-Agent":"WooCommerce Payments/10.0.0","X-Request-Initiated":1760170347.795552},"timeout":70,"connect_timeout":70},"0":[]}
+2025-10-11T08:12:27+00:00 ERROR 68ea116a6dd99-0002 HTTP_REQUEST_ERROR Site is not connected to WordPress.com CONTEXT: {"WP_USER":"Guest (non logged-in user)","HTTP_REFERER":"--","HTTP_USER_AGENT":"WordPress/6.8.3; http://localhost/techwatt","REQUEST_URI":"/techwatt/wp-cron.php?doing_wp_cron=1760170345.1945850849151611328125","DOING_AJAX":"","DOING_CRON":"1","WP_CLI":"","WOOPAYMENTS_MODE":"test"}
+2025-10-11T08:12:27+00:00 ERROR 68ea116a6dd99-0003 Failed to decode WooPay incompatible extensions list. WCPay\Exceptions\API_Exception: Site is not connected to WordPress.com in C:\xampp\htdocs\techwatt\wp-content\plugins\woocommerce-payments\includes\wc-payment-api\class-wc-payments-http.php:61
+Stack trace:
+#0 C:\xampp\htdocs\techwatt\wp-content\plugins\woocommerce-payments\includes\wc-payment-api\class-wc-payments-api-client.php(2558): WC_Payments_Http->remote_request(Array, NULL, false, false)
+#1 C:\xampp\htdocs\techwatt\wp-content\plugins\woocommerce-payments\includes\wc-payment-api\class-wc-payments-api-client.php(2439): WC_Payments_API_Client->request(Array, 'woopay/compatib...', 'GET', false)
+#2 C:\xampp\htdocs\techwatt\wp-content\plugins\woocommerce-payments\includes\woopay\class-woopay-scheduler.php(85): WC_Payments_API_Client->get_woopay_compatibility()
+#3 C:\xampp\htdocs\techwatt\wp-includes\class-wp-hook.php(324): WCPay\WooPay\WooPay_Scheduler->update_compatibility_and_maybe_show_incompatibility_warning()
+#4 C:\xampp\htdocs\techwatt\wp-includes\class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#5 C:\xampp\htdocs\techwatt\wp-includes\plugin.php(565): WP_Hook->do_action(Array)
+#6 C:\xampp\htdocs\techwatt\wp-cron.php(191): do_action_ref_array('validate_woopay...', Array)
+#7 {main} CONTEXT: {"WP_USER":"Guest (non logged-in user)","HTTP_REFERER":"--","HTTP_USER_AGENT":"WordPress/6.8.3; http://localhost/techwatt","REQUEST_URI":"/techwatt/wp-cron.php?doing_wp_cron=1760170345.1945850849151611328125","DOING_AJAX":"","DOING_CRON":"1","WP_CLI":"","WOOPAYMENTS_MODE":"test"}
+2025-10-11T09:39:41+00:00 ERROR 68ea25dcc8547-0001 HTTP_REQUEST_ERROR \WP_Error::__set_state(array(
+   'errors' => 
+  array (
+    'http_request_failed' => 
+    array (
+      0 => 'cURL error 6: Could not resolve host: public-api.wordpress.com',
+    ),
+  ),
+   'error_data' => 
+  array (
+  ),
+   'additional_data' => 
+  array (
+  ),
+)) CONTEXT: {"WP_USER":"staff","HTTP_REFERER":"http://localhost/techwatt/backend","HTTP_USER_AGENT":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0","REQUEST_URI":"/techwatt/wp-admin/","DOING_AJAX":"","DOING_CRON":"","WP_CLI":"","WOOPAYMENTS_MODE":"test"}
