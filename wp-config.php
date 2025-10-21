@@ -25,13 +25,13 @@ define( 'WP_CACHE', true );
 define( 'DB_NAME', 'dbmtechwatt' );
 
 /** Database username */
-define( 'DB_USER', 'root' );
+define( 'DB_USER', 'wpuser' );
 
 /** Database password */
-define( 'DB_PASSWORD', '' );
+define( 'DB_PASSWORD', 'wppass' );
 
 /** Database hostname */
-define( 'DB_HOST', 'localhost' );
+define( 'DB_HOST', 'db:3306' );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8mb4' );
@@ -88,11 +88,13 @@ $table_prefix = 'tw_';
  * @link https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/
  */
 define( 'WP_DEBUG', false );
-define( 'JETPACK_DEV_DEBUG', true );
-define( 'WCPAY_DEV_MODE', true );
+# define( 'JETPACK_DEV_DEBUG', true );
+# define( 'WCPAY_DEV_MODE', true );
 /* Add any custom values between this line and the "stop editing" line. */
 
 
+define( 'WP_HOME', 'http://localhost:8000' );
+define( 'WP_SITEURL', 'http://localhost:8000' );
 
 /* That's all, stop editing! Happy publishing. */
 
