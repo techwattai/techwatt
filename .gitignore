@@ -1,0 +1,12 @@
+# Ignore Docker volumes and system files
+db_data/
+*.log
+*.tmp
+node_modules/
+vendor/
+.env
+.DS_Store
+
+# WordPress specific
+wp-content/uploads/
+wp-content/cache/
