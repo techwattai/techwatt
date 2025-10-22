@@ -92,9 +92,12 @@ define( 'WP_DEBUG', false );
 # define( 'WCPAY_DEV_MODE', true );
 /* Add any custom values between this line and the "stop editing" line. */
 
-
-define( 'WP_HOME', 'http://localhost:8000' );
-define( 'WP_SITEURL', 'http://localhost:8000' );
+// ** Allow WordPress to detect HTTPS correctly when behind Railway proxy ** //
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+//define( 'WP_HOME', 'http://localhost:8000' );
+//define( 'WP_SITEURL', 'http://localhost:8000' );
 
 /* That's all, stop editing! Happy publishing. */
 
