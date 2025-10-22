@@ -96,9 +96,13 @@ define( 'WP_DEBUG', false );
 if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
     $_SERVER['HTTPS'] = 'on';
 }
-//define( 'WP_HOME', 'http://localhost:8000' );
-//define( 'WP_SITEURL', 'http://localhost:8000' );
-
+if ( getenv('WP_HOME') && getenv('WP_SITEURL') ) {
+    define('WP_HOME', getenv('WP_HOME'));
+    define('WP_SITEURL', getenv('WP_SITEURL'));
+} else {
+	define( 'WP_HOME', 'http://localhost:8000' );
+	define( 'WP_SITEURL', 'http://localhost:8000' );
+}
 /* That's all, stop editing! Happy publishing. */
 
 /** Absolute path to the WordPress directory. */
