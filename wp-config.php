@@ -25,10 +25,10 @@ define( 'WP_CACHE', true );
 define( 'DB_NAME', 'dbmtechwatt' );
 
 /** Database username */
-define( 'DB_USER', 'wpuser' );
+define( 'DB_USER', 'wpuser345' );
 
 /** Database password */
-define( 'DB_PASSWORD', 'wppass' );
+define( 'DB_PASSWORD', 'P!@#$55w0rD' );
 
 /** Database hostname */
 define( 'DB_HOST', 'db:3306' );

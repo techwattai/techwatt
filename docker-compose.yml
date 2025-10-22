@@ -5,10 +5,10 @@ services:
     container_name: wp_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: P!@#$55w0rD
       MYSQL_DATABASE: dbmtechwatt   
-      MYSQL_USER: wpuser
-      MYSQL_PASSWORD: wppass
+      MYSQL_USER: wpuser345
+      MYSQL_PASSWORD: P!@#$55w0rD
     volumes:
       - db_data:/var/lib/mysql
       - ./dbmtechwatt.sql:/docker-entrypoint-initdb.d/dbmtechwatt.sql:ro
@@ -25,8 +25,8 @@ services:
       - "8000:80"
     environment:
       WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: wpuser
-      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_USER: wpuser345
+      WORDPRESS_DB_PASSWORD: P!@#$55w0rD
       WORDPRESS_DB_NAME: dbmtechwatt
     command: >
       bash -c "apache2-foreground -e info -C 'ServerName localhost'"
