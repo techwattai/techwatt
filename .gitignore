@@ -8,10 +8,12 @@ vendor/
 .DS_Store
 
 # Ignore large files and backups
+database/
 *.sql
 *.zip
 *.tar
 *.gz
+*.env
 
 # WordPress specific
 wp-content/uploads/
