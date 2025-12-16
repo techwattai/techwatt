@@ -1,14 +1,19 @@
 FROM wordpress:php8.2-apache
 
-# Force only prefork MPM
-RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
-          /etc/apache2/mods-enabled/mpm_worker.load \
- && ln -sf /etc/apache2/mods-available/mpm_prefork.load \
-           /etc/apache2/mods-enabled/mpm_prefork.load
+# 🔥 NUKE all MPMs completely
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load \
+          /etc/apache2/mods-enabled/mpm_*.conf \
+          /etc/apache2/mods-available/mpm_event.* \
+          /etc/apache2/mods-available/mpm_worker.*
 
+# ✅ Re-enable ONLY prefork
+RUN ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
+ && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
+
+# WordPress needs rewrite
 RUN a2enmod rewrite
 
-# Make Apache listen on 8080
+# Force Apache to listen on Railway port
 RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf \
  && sed -i 's/:80/:8080/' /etc/apache2/sites-enabled/000-default.conf
 
