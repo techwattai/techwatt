@@ -277,7 +277,7 @@ function tw_kids_project_form_shortcode( $atts ) {
 
     $current_user = wp_get_current_user();
     $userID = $current_user->ID;
-    $children = get_user_meta($userID, 'children',true);
+    $children = get_user_meta($userID, 'tw_userdate',true)['children'] ?? [];
 
     $data = array(
         'title' => '',

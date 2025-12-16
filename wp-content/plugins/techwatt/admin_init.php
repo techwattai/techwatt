@@ -26,21 +26,17 @@ add_action('admin_menu', function () {
     add_submenu_page(
         'techwatt-dashboard',  //Parent
         'Register Students', //Page Title
-        'Register Students', //Menu Title
+        'Students', //Menu Title
         'manage_options', // Capability
         'techwatt-register-students', //Slug
         'techwatt_register_students_page' //callback function
     );
 
-    // Submenu: LMS
-    add_submenu_page(
-        'techwatt-dashboard',
-        'LMS',
-        'LMS',
-        'manage_options',
-        'techwatt-lms',
-        'techwatt_lms_page'
-    );
+// Submenu: Bookcamp registration
+add_submenu_page('techwatt-dashboard','Bootcamp','Bootcamp','manage_options', 'techwatt-bootcamp', 'techwatt_bootcamp_page');
+
+// Submenu: LMS
+add_submenu_page('techwatt-dashboard','Future Innovators Club','Future Innovators Club','manage_options', 'techwatt-fclub', 'techwatt_fclub_page');
 
     // Submenu: Projects
     add_submenu_page(
@@ -62,11 +58,11 @@ add_action('admin_menu', function () {
         'techwatt_testimonials_page'
     );
 
-    // Submenu: Payments
+    //Submenu: Payments
     add_submenu_page(
         'techwatt-dashboard',
-        'Payments',
-        'Payments',
+        'Course Revenue',
+        'Course Revenue',
         'manage_options',
         'techwatt-payments',
         'techwatt_payments_page'
@@ -128,7 +124,7 @@ add_action('init', function () {
             // Allow AJAX calls to still work
             if (defined('DOING_AJAX') && DOING_AJAX) { return; }
             if (strpos($_SERVER['REQUEST_URI'], '/wp-admin') !== false) {
-                wp_redirect(PS_UDashboard);  exit;
+                wp_redirect(twUrl("PS_UDashboard"));  exit;
             }
         }
     }
@@ -278,7 +274,7 @@ add_filter('login_headertitle', function() { return get_bloginfo('name'); });
 
 add_action('login_footer', function() {
     $lost_password_url = wp_lostpassword_url();
-    $user_login_url = home_url(PS_Login);
+    $user_login_url = home_url(twUrl("PS_Login"));
 
     echo '<p id="nav" class="cflogurl">Do you <a href="'.esc_url($lost_password_url).'">forgot your password?</a></p>';
 });

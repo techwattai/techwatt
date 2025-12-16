@@ -26,7 +26,7 @@ function techwatt_testimony_form_shortcode($atts) {
     $children = null;
 
     if(!empty($userID)){
-        $children = get_user_meta($userID, 'children',true);
+        $children = get_user_meta($userID, 'tw_userdata',true)['children'] ?? [];
     }
     
 	$title_val = $post_id ? get_the_title($post_id) : '';

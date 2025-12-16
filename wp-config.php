@@ -3,9 +3,9 @@ define( 'WP_CACHE', true );
 
 // ** Database settings — use Railway environment variables if available ** //
 define( 'DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'dbmtechwatt' );
-define( 'DB_USER', getenv('WORDPRESS_DB_USER') ?: 'wpuser345' );
-define( 'DB_PASSWORD', getenv('WORDPRESS_DB_PASSWORD') ?: 'P!@#$55w0rD' );
-define( 'DB_HOST', getenv('WORDPRESS_DB_HOST') ?: 'db:3306' );
+define( 'DB_USER', getenv('WORDPRESS_DB_USER') ?: 'root' ); //wpuser345
+define( 'DB_PASSWORD', getenv('WORDPRESS_DB_PASSWORD') ?: '' ); //P!@#$55w0rD
+define( 'DB_HOST', getenv('WORDPRESS_DB_HOST') ?: 'localhost' ); //db:3306
 
 define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
@@ -35,8 +35,8 @@ if ( getenv('WP_HOME') && getenv('WP_SITEURL') ) {
     define('WP_HOME', getenv('WP_HOME'));
     define('WP_SITEURL', getenv('WP_SITEURL'));
 } else {
-	define( 'WP_HOME', 'http://localhost:8000' );
-	define( 'WP_SITEURL', 'http://localhost:8000' );
+	define( 'WP_HOME', 'http://localhost/techwatt' ); //:8000
+	define( 'WP_SITEURL', 'http://localhost/techwatt' );
 }
 
 /* That's all, stop editing! Happy publishing. */

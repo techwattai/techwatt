@@ -2,7 +2,10 @@
 global $CountryCodes,$ArrayCourses, $ArrayPackages;
 $userID = $user->ID;  $ck=0;
 ////////// GET USER META //////////////// boolean means return single value (true) or array (false)
-$children = get_user_meta($userID, 'children',true); 
+//$tw_userdata = get_user_meta($userID, 'tw_userdata',true) ?? []; 
+//$children = $tw_userdata['children'] ?? [];  
+$MyCountryCode = $tw_userdata['countrycode'] ?? ''; 
+$MyPhone = $tw_userdata['phone'] ?? ''; 
 ?>
 
 <div class="innerwrap">
@@ -26,7 +29,6 @@ $children = get_user_meta($userID, 'children',true);
     <div class="d-flex-row">
         <p class="flex-1">
             <label for="countrycode">Country Code</label><br>
-            <?php $MyCountryCode = esc_attr(get_user_meta($userID, 'countrycode', true)); ?>
             <select name="countrycode" id="countrycode" required>
                         <?php foreach ($CountryCodes as $code => $dial): ?>
                             <option value="<?php echo esc_attr($dial); ?>" <?php echo ($MyCountryCode == $dial)?' selected':''; ?>>
@@ -37,7 +39,7 @@ $children = get_user_meta($userID, 'children',true);
         </p>
         <p class="flex-1">
             <label for="tw_phone">Phone</label><br>
-            <input type="text" id="tw_phone" name="tw_phone" value="<?php echo esc_attr(get_user_meta($userID, 'phone', true)); ?>">
+            <input type="text" id="tw_phone" name="tw_phone" value="<?php echo esc_attr($MyPhone); ?>">
         </p>
         <p class="flex-2">
             <label for="tw_email">Email Address</label><br>

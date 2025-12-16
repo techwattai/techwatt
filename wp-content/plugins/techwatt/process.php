@@ -1,94 +1,4 @@
 <?php
-////////////// SIGN UP - BOOKING CLASS //////////////////////////
-add_action('wp_ajax_ps_signup', 'fxn_ps_signup');
-add_action('wp_ajax_nopriv_ps_signup', 'fxn_ps_signup');
-
-function fxn_ps_signup() {
-    $errors = new WP_Error();
-    if (!check_ajax_referer('ps_signup', 'security', false) ) {
-        wp_send_json_error(['message' => 'Unauthorized request!']); return;
-    }
-
-        global $ArrayPackages;       
-        // Sanitize inputs
-        $email        = sanitize_email($_POST['tw_email']);
-        $password     = $_POST['tw_password'];
-        $cpassword    = $_POST['tw_cpassword'];
-        $childname    = sanitize_text_field($_POST['tw_childname']);
-        $parentname   = sanitize_text_field($_POST['tw_parentname']);
-        $country_code = sanitize_text_field($_POST['tw_country']);
-        $phone        = sanitize_text_field($_POST['tw_phone']);
-        $username     = sanitize_user($phone,true);
-        $age          = sanitize_text_field($_POST['tw_age']);
-        $course       = sanitize_text_field($_POST['tw_course']);
-        $package = sanitize_text_field($_POST["tw_package"]);
-        $cost = sanitize_text_field($ArrayPackages[$package]["cost"]);
-        $duration = sanitize_text_field($ArrayPackages[$package]["duration"]);
-
-        // ✅ Validation: ensure phone is exactly 10 digits
-        if (!preg_match('/^[0-9]{10}$/', $phone)) {
-            $errors->add("invalid_phone", "Phone number must be 10 digits.");
-        }else if(empty($username) || !validate_username($username)){
-            $errors->add("invalid_username", "Invalid username. Do not include space or any special character in your phone number.");
-        }else if(username_exists($username)){
-            $errors->add("username_exit", "Phone number already taken. Try another phone number!");
-        }else if(is_email($email) === false){ //return sanitized email or false
-            $errors->add("invalid_username", "Invalid email address.");
-        }else if(email_exists($email)){
-            $errors->add("email_exist", "Username already exist. Try another email address!");
-        }else if(strlen($password) < 8) {
-            $errors->add("wrong_password", "Password must be at least 8 characters.");
-        }else if(empty($password)){
-            $errors->add("invalid_password", "Password is required.");
-        }else if($password !== $cpassword){
-            $errors->add("pwd_notmatch", "Password not match!");
-        }else if(empty($course)){
-            $errors->add("empty_course", "Choose a course to enrol!");
-        }else if(empty($package)){
-            $errors->add("empty_package", "Choose a package to enrol!");
-        }
-        
-        if($errors->has_errors()){
-            foreach ($errors->get_error_messages() as $error) {
-                $msg .= '<p>' . esc_html($error) . '</p>';
-            }
-            wp_send_json_error(['message' => $msg]); return;
-        }else{
-            // Create user....
-            $user_id = wp_create_user($username, $password, $email);
-            $regdate = time();
-
-            $child_id = strtolower('tw-' . wp_generate_password(6, false, false));
-            $children[$child_id] = ["id"=>$child_id,'name' => $childname,'age' => $age, 'course'=>$course, 'class' => '', 'regdate' => $regdate, 'package' => $package, 'cost' => $cost, 'paid' => '0', 'duration' => $duration, 'paymentstatus' => 'Trial'];
-
-            if (!is_wp_error($user_id)) {
-                $user = new WP_User($user_id);
-                $user->set_role('student');
-
-                $flname = explode(" ",$parentname);
-                $lname = $flname[0];
-                $fname = $flname[1] ?? '';
-                $dname = !empty($fname) ? $fname : $parentname;
-
-                wp_update_user(['ID'=>$user_id,'display_name' => $dname,'nickname' => $parentname,'first_name' => $fname,'last_name' => $lname]); //nickname,firstname, lastname
-                // Save extra fields as user meta
-                update_user_meta($user_id, 'children', $children);
-                update_user_meta($user_id, 'parentname', $parentname);
-                update_user_meta($user_id, 'countrycode', $country_code);
-                update_user_meta($user_id, 'phone', $phone);
-                update_user_meta($user_id, 'totalpaid', 0.00);
-                update_user_meta($user_id, 'regdate', $regdate);
-                
-                // Send welcome email
-                //wp_new_user_notification($user_id, null, 'user');
-                wp_send_json_success(['message' => 'Registration successful! Click here to <a href="'.esc_url(PS_Login).'">login</a>. Check your email for confirmation message.']); return;
-            } else {
-                //echo '<p style="color:red;">❌ ' . $user_id->get_error_message() . '</p>';
-                wp_send_json_error(['message' => $user_id->get_error_message()]); return;
-            }
-        }
-}
-
 ////////////// CHANGE PWD AJAX //////////////////////////
 add_action('wp_ajax_ps_chgpwd', 'fxn_ps_chgpwd');
 
@@ -198,7 +108,8 @@ function fxn_ps_editprofile() {
             return;
         }
 
-        $myChildren = get_user_meta($userID, 'children', true) ?: [];
+        $tw_userdta = get_user_meta($userID, 'tw_userdata', true) ?? [];
+        $myChildren = $tw_userdta['children'] ?? []; //?:
             
             foreach($_POST['tw_childid'] as $key=>$valKidID){
                 $childid     = sanitize_text_field($valKidID) ?? '';
@@ -240,11 +151,13 @@ function fxn_ps_editprofile() {
                $totalpaid += (float)$myChildren[$childid]["cost"];              
             }
 
-            update_user_meta($userID, 'children', $myChildren);
-            update_user_meta($userID, 'parentname', $parentname);
-            update_user_meta($userID, 'countrycode', $countrycode);
-            update_user_meta($userID, 'phone', $phone);
-            update_user_meta($userID, 'totalpaid', $totalpaid);
+            $tw_userdta['children'] = $myChildren;
+            $tw_userdta['parentname'] = $parentname;
+            $tw_userdta['countrycode'] = $countrycode;
+            $tw_userdta['phone'] = $phone;
+            $tw_userdta['totalpaid'] = $totalpaid;
+
+            update_user_meta($user_id, 'tw_userdata', $tw_userdta);
 
             wp_send_json_success(['message' => 'Profile updated successfully!']); return;
 }

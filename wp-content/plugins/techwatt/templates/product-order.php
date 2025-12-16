@@ -1,4 +1,4 @@
-<h2 class="ps-mb-5 ps-hdflex"><span>Ordered Products</span> <span><a href="<?php _e(PS_Shop,'tw'); ?>" class="btn btn-xs btn-success"><i class="bi bi-plus"></i> Buy Product</a></span></h2>
+<h2 class="ps-mb-5 ps-hdflex"><span>Ordered Products</span> <span><a href="<?php _e(twUrl("PS_Shop"),'tw'); ?>" class="btn btn-xs btn-success"><i class="bi bi-plus"></i> Buy Product</a></span></h2>
 <?php
     $orders = wc_get_orders(['customer_id' => $userID, 'status' => array_keys(wc_get_order_statuses()),  'limit' => -1,'orderby' => 'date','order' => 'DESC',]);
 ?>
