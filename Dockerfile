@@ -1,14 +1,18 @@
-# Use an official WordPress image
 FROM wordpress:php8.2-apache
 
-# ✅ Fix Apache MPM conflict (WordPress needs prefork)
-RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
+# 🔥 FORCE Apache to use only prefork (WordPress requirement)
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
+          /etc/apache2/mods-enabled/mpm_worker.load \
+ && ln -sf /etc/apache2/mods-available/mpm_prefork.load \
+           /etc/apache2/mods-enabled/mpm_prefork.load
 
-# Copy all local files into container
+# Enable rewrite (WordPress needs this)
+RUN a2enmod rewrite
+
+# Copy WordPress files
 COPY . /var/www/html
 
-# Give ownership to www-data user (required by WordPress)
+# Permissions
 RUN chown -R www-data:www-data /var/www/html
 
-# Expose default web port
 EXPOSE 80
