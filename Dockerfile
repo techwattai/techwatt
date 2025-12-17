@@ -1,15 +1,6 @@
 FROM php:8.2-apache
 
-# --- HARD RESET APACHE MPMs ---
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.load \
- && rm -f /etc/apache2/mods-enabled/mpm_*.conf \
- && rm -f /etc/apache2/mods-available/mpm_*.conf \
- && rm -f /etc/apache2/mods-available/mpm_*.load
-
-# Re-enable ONLY prefork
-RUN a2enmod mpm_prefork
-
-# Required Apache modules
+# Enable required Apache modules only
 RUN a2enmod rewrite headers
 
 # PHP extensions for WordPress
@@ -25,3 +16,6 @@ COPY . /var/www/html
 
 RUN chown -R www-data:www-data /var/www/html \
  && chmod -R 755 /var/www/html
+
+# Force Apache to use prefork at runtime (without a2enmod)
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
