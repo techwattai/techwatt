@@ -1,23 +1,26 @@
-FROM wordpress:php8.2-apache
+FROM php:8.2-apache
 
-# 🔥 NUKE all MPMs completely
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.load \
-          /etc/apache2/mods-enabled/mpm_*.conf \
-          /etc/apache2/mods-available/mpm_event.* \
-          /etc/apache2/mods-available/mpm_worker.*
+# Disable all other MPMs and enable prefork ONLY
+RUN a2dismod mpm_event mpm_worker || true \
+    && a2enmod mpm_prefork
 
-# ✅ Re-enable ONLY prefork
-RUN ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
- && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
+# Enable required Apache modules
+RUN a2enmod rewrite headers
 
-# WordPress needs rewrite
-RUN a2enmod rewrite
+# PHP extensions for WordPress
+RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Force Apache to listen on Railway port
-RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf \
- && sed -i 's/:80/:8080/' /etc/apache2/sites-enabled/000-default.conf
+# PHP upload limits (safe defaults)
+RUN echo "upload_max_filesize=64M" > /usr/local/etc/php/conf.d/uploads.ini \
+ && echo "post_max_size=64M" >> /usr/local/etc/php/conf.d/uploads.ini \
+ && echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/uploads.ini
 
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy WordPress files
 COPY . /var/www/html
-RUN chown -R www-data:www-data /var/www/html
 
-EXPOSE 8080
+# Fix permissions
+RUN chown -R www-data:www-data /var/www/html \
+ && chmod -R 755 /var/www/html
