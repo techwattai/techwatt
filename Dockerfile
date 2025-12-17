@@ -1,20 +1,29 @@
-# Use the official WordPress PHP-FPM image
-FROM wordpress:php8.2-fpm
+FROM php:8.2-fpm
 
-# PHP extensions needed by WordPress
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    nginx \
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# PHP extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# PHP configuration for uploads
+# PHP config
 RUN echo "upload_max_filesize=64M" > /usr/local/etc/php/conf.d/uploads.ini \
  && echo "post_max_size=64M" >> /usr/local/etc/php/conf.d/uploads.ini \
  && echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/uploads.ini
 
-# Set working directory
-WORKDIR /var/www/html
+# Nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy WordPress files from repo
+# WordPress files
+WORKDIR /var/www/html
 COPY . /var/www/html
 
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www/html \
- && chmod -R 755 /var/www/html
+RUN chown -R www-data:www-data /var/www/html
+
+EXPOSE 8080
+
+CMD service nginx start && php-fpm
