@@ -2,10 +2,10 @@
 define( 'WP_CACHE', true );
 
 // ** Database settings — use Railway environment variables if available ** //
-define( 'DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'dbmtechwatt' );
-define( 'DB_USER', getenv('WORDPRESS_DB_USER') ?: 'root' ); //wpuser345
-define( 'DB_PASSWORD', getenv('WORDPRESS_DB_PASSWORD') ?: '' ); //P!@#$55w0rD
-define( 'DB_HOST', getenv('WORDPRESS_DB_HOST') ?: 'localhost' ); //db:3306
+define( 'DB_NAME', getenv('WORDPRESS_DB_NAME') );
+define( 'DB_USER', getenv('WORDPRESS_DB_USER') );
+define( 'DB_PASSWORD', getenv('WORDPRESS_DB_PASSWORD') );
+define( 'DB_HOST', getenv('WORDPRESS_DB_HOST') );
 
 define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
@@ -22,6 +22,8 @@ define( 'NONCE_SALT',       'VosJPGqXO-U`V[#_@xj1/]cENvJv$hgqXD(0}1f/v_i(57&*e&z
 $table_prefix = 'tw_';
 
 define( 'WP_DEBUG', false );
+define( 'WP_DEBUG_LOG', false );
+define( 'WP_DEBUG_DISPLAY', false );
 # define( 'JETPACK_DEV_DEBUG', true );
 # define( 'WCPAY_DEV_MODE', true );
 /* Add any custom values between this line and the "stop editing" line. */
@@ -34,9 +36,6 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 if ( getenv('WP_HOME') && getenv('WP_SITEURL') ) {
     define('WP_HOME', getenv('WP_HOME'));
     define('WP_SITEURL', getenv('WP_SITEURL'));
-} else {
-	define( 'WP_HOME', 'http://localhost/techwatt' ); //:8000
-	define( 'WP_SITEURL', 'http://localhost/techwatt' );
 }
 
 /* That's all, stop editing! Happy publishing. */
