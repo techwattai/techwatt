@@ -1,19 +1,13 @@
-# Ignore Docker volumes and system files
-db_data/
-*.log
-*.tmp
-node_modules/
-vendor/
-.env
-.DS_Store
-
-# Ignore large files and backups
-*.sql
-*.zip
-*.tar
-*.gz
-
-# WordPress specific
+# Ignore dynamic WordPress folders
 wp-content/uploads/
 wp-content/cache/
 wp-content/upgrade/
+
+# Ignore Docker and system files
+db_data/
+*.log
+*.tmp
+.env
+.DS_Store
+node_modules/
+vendor/
