@@ -13,7 +13,7 @@ COPY apache.conf /etc/apache2/conf-available/custom.conf
 RUN a2enconf custom
 
 # Copy PHP configuration
-COPY php.ini /usr/local/etc/php/conf.d/custom.ini
+#COPY php.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Set permissions (important for uploads)
 RUN chown -R www-data:www-data /var/www/html
