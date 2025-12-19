@@ -50,4 +50,7 @@ COPY wp-content /docker-wp-content
 
 EXPOSE 8080
 
-CMD ["/usr/bin/supervisord", "-n"]
+CMD sh -c "chown -R www-data:www-data /var/www/html/wp-content/uploads \
+ && chmod -R 775 /var/www/html/wp-content/uploads \
+ && /usr/bin/supervisord -n"
+
