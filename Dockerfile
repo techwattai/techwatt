@@ -44,6 +44,10 @@ RUN mkdir -p /var/www/html/wp-content/uploads \
  && chown -R www-data:www-data /var/www/html \
  && chmod -R 775 /var/www/html/wp-content
 
+# Copy wp-content into volume if volume is empty
+RUN mkdir -p /docker-wp-content
+COPY wp-content /docker-wp-content
+
 EXPOSE 8080
 
 CMD ["/usr/bin/supervisord", "-n"]
