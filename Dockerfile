@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Install system dependencies
+# Install system dependencies + Imagick
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
@@ -12,6 +12,10 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libzip-dev \
     git \
+    libmagickwand-dev \
+    imagemagick \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
     && docker-php-ext-configure gd \
         --with-freetype \
         --with-jpeg \
@@ -25,9 +29,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # PHP config
-RUN echo "upload_max_filesize=64M" > /usr/local/etc/php/conf.d/uploads.ini \
- && echo "post_max_size=64M" >> /usr/local/etc/php/conf.d/uploads.ini \
- && echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/uploads.ini
+RUN echo "upload_max_filesize=128M" > /usr/local/etc/php/conf.d/uploads.ini \
+ && echo "post_max_size=128M" >> /usr/local/etc/php/conf.d/uploads.ini \
+ && echo "memory_limit=1024M" >> /usr/local/etc/php/conf.d/uploads.ini \ 
+ && echo "max_execution_time=300" >> /usr/local/etc/php/conf.d/uploads.ini \
+ && echo "max_input_time=300" >> /usr/local/etc/php/conf.d/uploads.ini
+
 
 # Nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
