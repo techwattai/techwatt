@@ -92,10 +92,10 @@ add_action( 'wp_enqueue_scripts', function() {
     wp_enqueue_style('main-css', PS_PLUGIN_URL . 'assets/css/main.min.css', array(),'1.0.0');
     wp_enqueue_style('glow-css', PS_PLUGIN_URL . 'assets/css/glows.min.css', array(),'1.0.0');
     wp_enqueue_style('bootstrap-icons', PS_PLUGIN_URL . 'assets/bs-icons/bootstrap-icons.min.css', array(),'1.11.3');
+    
+    wp_enqueue_script('stripe-js', 'https://js.stripe.com/v3/', [], null, true);
     wp_enqueue_script('techwatt-client-script', PS_PLUGIN_URL . 'assets/js/client-script.min.js', ['jquery'],'1.0.0', true);
     wp_localize_script('techwatt-client-script', 'TWREST', [ 'root'  => esc_url_raw(rest_url('techwatt/v1/')), 'nonce' => wp_create_nonce('wp_rest'),'stripe_pk' => twStripeKeys()['pk'] ]);
-
-    wp_enqueue_script('stripe-js', 'https://js.stripe.com/v3/', [], null, true);
 });
 
 // Queue Scripts for Backend.....
@@ -129,8 +129,8 @@ register_activation_hook(PS_PLUGIN_FILE, function () {
     }
 });
 
-require_once "general_init.php";
 require_once "logging-codes.php";
+require_once "general_init.php";
 
 if( is_admin() ) {
     require_once "admin_init.php";

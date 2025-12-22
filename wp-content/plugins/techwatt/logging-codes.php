@@ -1,66 +1,133 @@
 <?php
-// Add custom rewrite rules
-function tw_add_rewrite_rules() {
-    add_rewrite_rule('^logout/?$', 'index.php?logout=1', 'top');
-    add_rewrite_rule('^signin/?$', 'index.php?signin=1', 'top');
-    add_rewrite_rule('^payment-success/?$', 'index.php?payment_success=1', 'top');
-}
-add_action('init', 'tw_add_rewrite_rules');
+if (!defined('ABSPATH')) exit;
 
-// Add custom query vars
-function tw_add_query_vars($vars) {
-    $vars[] = 'logout';
-    $vars[] = 'signin';
+//Config............
+function tw_get_admin_slug() {
+    $slug = get_option('tw_cadmin_url');
+    return $slug ? sanitize_title($slug) : 'backend';
+}
+
+// REWRITE RULES.......................
+add_action('init', function () {
+    add_rewrite_rule('^signin/?$', 'index.php?tw_login=signin', 'top');
+    add_rewrite_rule('^logout/?$', 'index.php?tw_login=logout', 'top');
+    add_rewrite_rule('^payment-success/?$', 'index.php?payment_success=1', 'top');
+    $admin_slug = tw_get_admin_slug();
+    if($admin_slug){
+        add_rewrite_rule("^{$admin_slug}/?$", 'index.php?tw_login=backend', 'top');
+    }
+});
+
+function tw_plugin_activate() {
+    tw_get_admin_slug(); //Ensure option exists
+    flush_rewrite_rules();
+}
+register_activation_hook(PS_PLUGIN_FILE, 'tw_plugin_activate');
+
+add_filter('query_vars', function ($vars) {
+    $vars[] = 'tw_login';
     $vars[] = 'payment_success';
     return $vars;
-}
-add_filter('query_vars', 'tw_add_query_vars');
-
-// Flush rewrite rules on plugin activation
-register_activation_hook(PS_PLUGIN_FILE, function() {
-    tw_add_rewrite_rules();
-    flush_rewrite_rules();
 });
 
-// Flush rewrites on deactivation
-register_deactivation_hook(PS_PLUGIN_FILE, function() {
-    flush_rewrite_rules();
-});
+/**
+ * --------------------------------------------------
+ * TEMPLATE REDIRECT HANDLER
+ * --------------------------------------------------
+ */
+add_action('template_redirect', function () {
 
-// Handle LOGIN, LOGOUT, and CUSTOM 404 in one optimized redirect callback
-function tw_template_redirect() {
-
+    // PAYMENT SUCCESS PAGE
     if (get_query_var('payment_success')) {
-        require_once PS_PLUGIN_PATH . 'templates/stripe-payment-success.php';
+        $file = PS_PLUGIN_PATH . 'templates/stripe-payment-success.php';
+        if (file_exists($file)) {
+            status_header(200); nocache_headers(); require $file;
+        }
     }
 
-    // --- Handle /signin ---
-    if (get_query_var('signin')) {
-        wp_safe_redirect( wp_login_url() );
-        exit;
-    }
+    //Login/Logout/Backend Handler
+    $action = get_query_var('tw_login');
+    if (!$action) return;
+    if ($action === 'logout') {
+        if (is_user_logged_in()) {
+            wp_logout();            // logout immediately
+            wp_clear_auth_cookie(); // extra safety
+        }
 
-    ////////////// Handle /logout ////////////////////
-    if (get_query_var('logout') || (isset($_GET['action']) && $_GET['action'] === 'logout')) {
-        wp_logout();
         wp_safe_redirect(home_url());
         exit;
     }
+    if ($action === 'signin' || $action === 'backend') {
+        wp_safe_redirect(wp_login_url()); 
+        exit;
+    }    
+}, 0);
 
-    // --- Handle custom 404 ---
-    if (is_404()) {
-        status_header(404);
-        nocache_headers();
+// LOGIN REDIRECTION LOGIC...After login
+add_filter('login_redirect', function ($redirect_to, $request, $user) {
+    if (!isset($user->roles)) return home_url();
+    if (in_array('student', (array) $user->roles,true)) {
+        return twUrl('PS_UDashboard');
+    }
+    return admin_url();
+}, 10, 3);
 
-        $file = plugin_dir_path(__FILE__) . 'templates/custom-404.php';
+/* Prevent students accessing wp-admin */
+add_action('admin_init', function () {
+    if (!is_user_logged_in()) return;
 
-        if (file_exists($file)) {
-            include $file;
-        } else {
-            echo "<h1>404 - Page Not Found</h1>";
-        }
+    $user = wp_get_current_user();
 
+    if (in_array('student', (array) $user->roles,true)) {
+        if (defined('DOING_AJAX') && DOING_AJAX) return;
+        wp_safe_redirect(twUrl('PS_UDashboard'));
         exit;
     }
-}
-add_action('template_redirect', 'tw_template_redirect',1);
+});
+
+// PROTECT PORTAL PAGE.............
+add_action('template_redirect', function () {
+    if (!is_page('portal')) return;
+
+    if (!is_user_logged_in()) {
+        wp_safe_redirect(home_url('/signin'));
+        exit;
+    }
+
+    $user = wp_get_current_user();
+    if (!in_array('student', (array) $user->roles,true)) {
+        wp_safe_redirect(home_url());
+        exit;
+    }
+}, 20);
+
+// LOGIN PAGE UI (LIGHTWEIGHT)..........
+add_action('login_enqueue_scripts', function () { ?>
+    <style>
+        body.login { background:#1a1a2e }
+        #login h1 a {
+            background-image:url('<?php echo plugin_dir_url(__FILE__); ?>assets/images/logo.png');
+            background-size:contain;
+            height:80px;
+            width:100%;
+        }
+        .wp-core-ui .button-primary {
+            background:#0033fe;
+            border:none;
+        }
+        #backtoblog,.wp-login-lost-password { display:none }
+    </style>
+<?php });
+
+add_filter('login_headerurl', fn() => home_url());
+add_filter('login_headertitle', fn() => get_bloginfo('name'));
+
+// SAFE REWRITE FLUSH..............
+add_action('update_option_tw_cadmin_url', function ($old, $new) {
+    if ($old !== $new) {
+        flush_rewrite_rules();
+    }
+}, 10, 2);
+
+//register_activation_hook(PS_PLUGIN_FILE, 'flush_rewrite_rules');
+//register_deactivation_hook(PS_PLUGIN_FILE, 'flush_rewrite_rules');

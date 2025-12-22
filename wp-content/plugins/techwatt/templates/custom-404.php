@@ -22,8 +22,8 @@
         <h1>Page Not Found</h1>
         <p>
             The requested URL
-            <a href="<?php echo esc_url(home_url($_SERVER['REQUEST_URI'])); ?>">
-                <?php echo esc_html(home_url($_SERVER['REQUEST_URI'])); ?>
+            <a href="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>">
+                <?php echo esc_html($_SERVER['REQUEST_URI']); ?>
             </a>
             was not found on this server. Try links below.
         </p>
