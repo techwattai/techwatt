@@ -278,6 +278,53 @@ select option:disabled {
 .badge-secondary{background-color: #e2e3e5; color: #6c757d; padding: 2px 8px !important; border-radius: 5px; font-weight: 600; font-size:0.85em;display:inline-block;margin:0 5px;}
 .badge-warning{background-color: #fff3cd; color: #856404; padding: 2px 8px !important; border-radius: 5px; font-weight: 600; font-size:0.85em;display:inline-block;margin:0 5px;}
 
+/* Make carousel images gray */
+.gray-carousel img {
+    filter: grayscale(100%);
+    transition: filter 0.4s ease;
+}
+
+/* Restore color on hover */
+.gray-carousel img:hover {
+    filter: grayscale(0%);
+}
+
+#tw-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#tw-popup {
+    background: #fff;
+    width: 90%;
+    max-width: 650px;max-height: 80vh; overflow-y: auto;
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    animation: twFadeIn .25s ease;
+}
+
+.tw-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+@keyframes twFadeIn {
+    from { transform: scale(.9); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+.profile{text-decoration:underline;color:#0033fe;cursor:pointer;}
+.teamprofile h5{margin:0 0 15px 0;}
+
 @media(max-width:600px){ .tm-item{width:100%;} }
 
 @media (max-width: 800px) {

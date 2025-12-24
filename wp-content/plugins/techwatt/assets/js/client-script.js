@@ -50,7 +50,7 @@ jQuery(document).ready(function($) {
         ////////////////////////////////
         $("#cbtncancel").on("click", function(){ $("#cmsgbox").fadeOut(); $("#psRegFrm").fadeIn(); });
         //////////////////////////////////////////
-        $(document).on("submit", "#psFrm,#psFrm1,#tm-form", async function(e) {
+        $(document).on("submit", "#psFrm,#psFrm1,#psFrm2,#tm-form", async function(e) {
                 e.preventDefault();
                 const form = e.target;
                 const btn = form.querySelector("button[type='submit']");
@@ -62,12 +62,21 @@ jQuery(document).ready(function($) {
                 try {
                     const res = await fetch(url, {method: "POST", body: formData, credentials: 'same-origin', cache: "no-cache", headers: {"X-WP-Nonce": TWREST.nonce } });
 
-                    let result;
+                    /*let result;
                     if (res.ok) {  result = await res.json(); } else {
                         result = { success: false, message: `Request failed with status ${res.status} ${res.statusText}`};
-                    }
+                    }*/
                     
-                    //console.log(JSON.stringify(result));
+                    const rawText = await res.text();
+                    let result;
+                    console.log(result);
+
+                    try {
+                        result = JSON.parse(rawText);
+                    } catch (e) {
+                        result = { success: false, data:{message: `Request failed with status ${rawText}`} };
+                    }
+
                     if (result.success) {
                         if(formID === 'psRegFrm'){ 
                             form.reset(); $("#psRegFrm").fadeOut(); $("#cmsgbox").fadeIn(); 
@@ -75,11 +84,13 @@ jQuery(document).ready(function($) {
                             showMessage(`${result.data.message}`,'success');
                         }
                         
-                        if(formID === 'psFrm1' || formID === 'tm-form'){ form.reset(); }
-                        if(formID === 'tm-form'){ 
-                            window.reload();
-                            //$("#tmcontainer").slideToggle();
-                         }                         
+                        if (result?.data?.redirect){
+                            window.location.href = result.data.redirect;
+                        }
+
+                        if(formID === 'psFrm1' || formID === 'psFrm2' || formID === 'tm-form'){ form.reset(); }
+                        if(formID === 'tm-form'){ window.reload(); }     
+
                         history.replaceState(null, "", location.href);
                     } else {
                         showMessage(`${result.data.message}`,'error');
@@ -259,6 +270,44 @@ jQuery(document).ready(function($) {
             });
         });
 
+        ///////////////Team Popup//////////////////
+            function openPopup(html) {
+                $('#tw-popup .tw-content').html(html);
+                $('#tw-popup-overlay').fadeIn(150);
+            }
+
+            function closePopup() {
+                $('#tw-popup-overlay').fadeOut(150);
+            }
+
+            // Close actions
+            $(document).on('click', '.tw-close, #tw-popup-overlay', function (e) {
+                if (e.target !== this) return;
+                closePopup();
+            });
+
+            // EXAMPLE: open popup on button click
+            $(document).on('click', '.open-popup, #profile-felix, #profile-sam, #profile-johnson, #profile-maxwell, #profile-femi', function (e) {
+                e.preventDefault();
+                var teamID = $(this).attr('id').split('-')[1];
+                if(teamID){
+                    var content = $('#content-' + teamID).html();
+                    openPopup(content);
+                }
+            });
+        //////////////// Sign in & Forgot Password Form Toggle ////////////////
+            $('.tw-forgotpwd').on('click', function (e) {
+                e.preventDefault();
+                $('.tw-regfrm').hide();
+                $('.tw-fpwdfrm').show();
+            });
+
+            $('.tw-back2login').on('click', function (e) {
+                e.preventDefault();
+                $('.tw-fpwdfrm').hide();
+                $('.tw-regfrm').show();
+            });
+        ////////////////////////////////////////////
 });
 ////////// USER PORTAL //////////////////
 const msg = document.getElementById("msgbox");
