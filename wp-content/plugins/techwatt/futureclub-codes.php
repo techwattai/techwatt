@@ -113,7 +113,7 @@ function fxn_futureclub_submit() {
         'created_at' => current_time('mysql'),
     ]);
 
-    PS_SendMail($email, 'Future Innovators Club Registration Received', "Dear $first_name $last_name,\n\nThank you for registering to join our Future Innovators Club. Your registration has been successfully received.\n\nMember ID: $memberid\n\nWe will contact you with further details information as soon as possible.\n\nBest regards,\nTechwatt Team");
+    ScheduleEmail($email, 'Future Innovators Club Registration Received', "Dear $first_name $last_name,<p>Thank you for registering to join our Future Innovators Club. Your registration has been successfully received.</p><p>Member ID: $memberid</p><p>We will contact you with further details information as soon as possible.</p><p>Best regards,<br>Techwatt Team</p>");
 
     wp_send_json_success(['message' => 'Your Future Innovators Club application has been submitted successfully. Please check your email inbox for confirmation.']);
 }

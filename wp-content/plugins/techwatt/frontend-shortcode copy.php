@@ -244,6 +244,78 @@ add_shortcode('ps_booktrial', function ($atts) {
     return ob_get_clean();
 });
 
+
+// Shortcode: Login Form
+add_shortcode('ps_signin', function ($atts) {
+    $atts = shortcode_atts(['description'=>''], $atts, 'ps_trustpilot');
+    /**/
+    if (is_user_logged_in() && !isset($_POST['ulogin'])) {
+        if(current_user_can('student')){
+            wp_safe_redirect(twUrl("PS_UDashboard"));
+        }elseif(current_user_can('administrator')){
+            wp_safe_redirect(admin_url());
+        }
+        exit;
+        //return '<p>You are already logged in. <a href="'.twUrl("PS_UDashboard").'">Go to Dashboard</a></p>';
+    }
+    ob_start();
+    if (isset($_POST['ulogin'])) {
+        $creds = array();
+        $username = sanitize_user($_POST['username']);
+
+        $creds['user_login']    = $username;
+        $creds['user_password'] = $_POST['pwd'];
+        $creds['remember']      = !empty($_POST['rememberme']) ?? false;
+
+        if(empty($username)){ 
+            echo '<p style="color:red;text-align:center;margin:0 0 5px 0;">❌ Username is required!</p>';
+        }else{
+            $user = wp_signon($creds, false);
+            if (is_wp_error($user)) {
+                echo '<p style="color:red;text-align:center;margin:0 0 5px 0;">❌ ' . $user->get_error_message() . '</p>';
+            } else {
+                if (in_array('student', (array)$user->roles,true)) {
+                    wp_safe_redirect(twUrl("PS_UDashboard"));
+                } elseif (in_array('administrator', (array)$user->roles,true)) {
+                    wp_safe_redirect(admin_url());
+                } else {
+                    wp_safe_redirect(home_url());
+                }
+                exit;
+            }
+        }
+    }
+    ?>
+    <form method="post" id="psfrm1" class="tw-regfrm">
+        <p style="text-align:center;margin:0 0 15px 0;"><?php echo $atts["description"]; ?></p>
+        <p><input type="text" name="username" placeholder="Phone Number or Email" required></p>
+        <p style="margin:0 0 12px 0;"><input type="password" name="pwd" placeholder="Password" required></p>
+        <p style="margin:0 0 5px 0;"><label for="rememberme"><input type="checkbox" name="rememberme" id="rememberme" value="1"> Remember me</label></p>
+        <p class="ps-m-0">Are you new, <a href="<?php echo esc_url(twUrl("PS_Register")); ?>">Sign up</a>. Forgot password, <a href="javascript:void(0);" id="tw-forgotpwd">reset</a>?</p>
+        <p style="text-align:right;"><button type="submit" name="ulogin">Login</button></p>
+    </form>
+    <form method="post" id="psfrm2" class="tw-fpwdfrm" style="display:none;" action="<?php echo esc_url( rest_url('techwatt/v1/forgotpwd') ); ?>">
+        <p style="text-align:center;margin:0 0 15px 0;">Enter your email address to reset your password.</p>
+        <p><input type="email" name="fp_email" placeholder="Email Address" required></p>        
+        <p class="ps-m-0">Remembered your password, <a href="javascript:void(0);" id="tw-back2login">login</a>.</p>
+        <p style="text-align:right;"><button type="submit" name="fsubmit">Reset Password</button></p>
+    </form>
+    <script>
+        jQuery(document).ready(function($){
+            $("#tw-forgotpwd").click(function(){
+                $(".tw-regfrm").hide(1200);
+                $(".tw-fpwdfrm").show(200);
+            });
+            $("#tw-back2login").click(function(){
+                $(".tw-regfrm").show(200);
+                $(".tw-fpwdfrm").hide(100);
+            });
+        });
+    </script>
+<?php
+    return ob_get_clean();
+});
+
 //Register not book trial class..........
 add_shortcode('ps_signup', function () {
     global $CountryCodes;
@@ -302,41 +374,3 @@ add_shortcode('ps_signup', function () {
     return ob_get_clean();
 });
 
-// Shortcode: Login Form
-add_shortcode('ps_signin', function ($atts) {
-    if (is_user_logged_in()) {
-        $user = wp_get_current_user();
-
-        if (in_array('student', (array) $user->roles, true)) {
-            wp_safe_redirect(twUrl('PS_UDashboard'));
-        } elseif (in_array('administrator', (array) $user->roles, true)) {
-            wp_safe_redirect(admin_url());
-        } else {
-            wp_safe_redirect(home_url());
-        }
-        exit;
-    }
-
-    $atts = shortcode_atts(['description' => ''], $atts, 'ps_signin');
-
-    ob_start();
-    ?>
-    <form method="post" id="psFrm1" class="tw-regfrm" action="<?php echo esc_url(rest_url('techwatt/v1/usignin')); ?>">
-        <h2 style="text-align:center;margin:0 !important;">Member Login</h2>
-        <?php if ($atts['description']): ?> <p class="tw-desc" style="margin:0 0 10px 0;text-align:center;"><?php echo esc_html($atts['description']); ?></p><?php endif; ?>
-        <p style="margin:5px 0 10px 0;"><input type="text" name="username" placeholder="Email Address or Phone No." required></p>
-        <p style="margin:5px 0;"><input type="password" name="pwd" placeholder="Password" required></p>
-        <p style="margin:10px 0 5px 0;"><label><input type="checkbox" name="rememberme" value="1"> Remember me</label></p>
-        <p style="margin:5px 0;">Are you new? <a href="<?php echo esc_url(twUrl('PS_Register')); ?>">Sign up</a>.<span style="display:inline-block;color:#ddd;padding:0 15px;">|</span> Forgot your <a href="javascript:void(0);" class="tw-forgotpwd">password?</a></p>
-        <p style="text-align:right;"><button type="submit" name="ulogin">Login</button></p>
-    </form>
- 
-    <form method="post" id="psFrm2" class="tw-fpwdfrm" style="display:none;" action="<?php echo esc_url(rest_url('techwatt/v1/forgotpwd')); ?>"><h2 style="text-align:center;margin:0 0 10px 0;">Forgot Password</h2>
-        <p style="margin:0;text-align:center;">Enter your email address to reset your password.</p>
-        <p><input type="email" name="fp_email" placeholder="Email Address" required></p>
-        <p class="ps-m-0">Remembered your password? <a href="#" class="tw-back2login">Login</a></p>
-        <p style="text-align:right;"><button type="submit">Reset Password</button></p>
-    </form>
-    <?php
-    return ob_get_clean();
-});

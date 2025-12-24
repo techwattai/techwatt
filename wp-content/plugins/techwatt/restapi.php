@@ -15,6 +15,14 @@ add_action('rest_api_init', function () {
 add_action('rest_api_init', function () {
     register_rest_route('techwatt/v1', '/cancel-course', [ 'methods' => 'POST', 'callback'  => 'tw_rest_cancelcourse', 'permission_callback' => '__return_true', ]);
 });
+
+add_action('rest_api_init', function () {
+    register_rest_route('techwatt/v1', '/usignin', [ 'methods' => 'POST', 'callback'  => 'tw_rest_usignin', 'permission_callback' => '__return_true', ]);
+});
+
+add_action('rest_api_init', function () {
+    register_rest_route('techwatt/v1', '/forgotpwd', [ 'methods' => 'POST', 'callback'  => 'tw_rest_forgotpwd', 'permission_callback' => '__return_true', ]);
+});
 /////////////////////////////////////////////////
 
 
@@ -269,7 +277,7 @@ function tw_rest_booktrial(WP_REST_Request $request){
     // Send emails
     $admin_email = get_option("tw_from_email");
     $subject = 'Techwatt Trial Class Booked';
-    $msg = "Dear $parentname,\n\nYour techwatt trial class has been successfully created. Login with:\nUsername: $email or $username\nPassword: $password\n\nBest regards,\nTechwatt Team";
+    $msg = "Dear $parentname,<p>Your techwatt trial class has been successfully created. Login with:</p><p>Username: $email or $username<br>Password: $password</p><p>Best regards,<br>Techwatt Team</p>";
     ScheduleEmail($email, $subject, $msg);
 
     if (!empty($admin_email)) {
@@ -379,13 +387,13 @@ function tw_rest_register(WP_REST_Request $req) {
     $admin_email = get_option("tw_from_email");
 
     $subject = 'Your Techwatt Account Confirmation';
-    $msg = "Dear ".$parentname.",\n\nYour account has been successfully created. Login with the following details below; \nLogin: https://techwatt.ai/signmein,\nUsername: ".$email." or ".$username."\nPassword: ".$password."\n\nPlease login to add course(s) of your choice. For assistance, do not hesitate to contact us.\n\nBest regards,\nTechwatt Team";
+    $msg = "Dear ".$parentname.",<p>Your account has been successfully created. Login with the following details below;</p><p>Login: https://techwatt.ai/signin,<br>Username: ".$email." or ".$username."<br>Password: ".$password."</p><p>Please login to add course(s) of your choice. For assistance, do not hesitate to contact us.</p><p>Best regards,<br>Techwatt Team</p>";
 
     ScheduleEmail($email, $subject, $msg);
 
     if ($admin_email != '') {
         ScheduleEmail($admin_email, "New signup on techwatt.ai",
-            "Dear admin,\n".$parentname." just created a new account on techwatt.ai. Login to your admin backend to check it out. https://techwatt.ai/backend"
+            "Dear admin,<p>".$parentname." just created a new account on techwatt.ai. Login to your admin backend to check it out. https://techwatt.ai/backend</p>"
         );
     }
 
@@ -395,5 +403,75 @@ function tw_rest_register(WP_REST_Request $req) {
     ], 200);
 }
 
-///////////////////////////////////////////////////////////////////////
+/////////////////////// Sign in & Forgot password ////////////////////////////////////////////////
+function tw_rest_usignin(WP_REST_Request $req){
+    $errors = new WP_Error();
+    
+    $nonce = $req->get_header('X-WP-Nonce');
+    if (!wp_verify_nonce($nonce, 'wp_rest')) { 
+        return new WP_REST_Response([ 'success' => false, 'data' => [ 'message' => 'Security verification failed' ] ], 200);
+    }
+
+    $username = sanitize_text_field($req->get_param('username'));
+    $pwd   = $req->get_param('pwd');
+    $rememberme   = $req->get_param('rememberme') == '1';
+    
+    if (empty($username) || empty($pwd)) {
+        return new WP_REST_Response(['success' => false,'data' => [ 'message' => 'Username and password are required']], 200);
+    }
+    
+    $user = wp_signon([
+        'user_login'    => $username,
+        'user_password' => $pwd,
+        'remember'      => $rememberme
+    ], false);
+
+    if (is_wp_error($user)) {
+        return new WP_REST_Response([ 'success' => false, 'data' => [ 'message' => $user->get_error_message() ] ], 200);
+    }
+
+    if (in_array('student', (array) $user->roles, true)) {
+        $redirect = twUrl('PS_UDashboard');
+    } elseif (in_array('administrator', (array) $user->roles, true)) {
+        $redirect = admin_url();
+    } else {
+        $redirect = home_url();
+    }
+
+    return new WP_REST_Response([ 'success' => true, 'data' => ['message'  => 'Login successful','redirect' => $redirect] ], 200);
+}
+/////////////
+function tw_rest_forgotpwd(WP_REST_Request $req){
+    $errors = new WP_Error();
+    
+    $nonce = $req->get_header('X-WP-Nonce');
+    if (!wp_verify_nonce($nonce, 'wp_rest')) { 
+        return new WP_REST_Response([ 'success' => false, 'data' => [ 'message' => 'Security verification failed' ] ], 200);
+    }
+
+    $email = sanitize_email($req->get_param('fp_email'));
+    
+    if (empty($email) || !is_email($email)) {
+        return new WP_REST_Response(['success' => false,'data' => [ 'message' => 'Please enter valid email address']], 200);
+    }
+    $user = get_user_by('email', $email);
+    if (!$user) {
+        return new WP_REST_Response([ 'success' => false, 'data' => [ 'message' => 'If the email exists, a password reset link has been sent.' ] ], 200);
+    }
+    
+    $key = get_password_reset_key($user); // Generate reset key
+    if (is_wp_error($key)) {
+        return new WP_REST_Response(['success' => false,'message' => 'Unable to process request. Try again later.'], 200);
+    }
+
+    $reset_url = add_query_arg(['key'   => $key, 'login' => rawurlencode($user->user_login), ], wp_login_url());
+
+    $message  = "Hello {$user->display_name},\n\nYou requested a password reset.\n\n";
+    $message .= "Click the link below to reset your password:\n";
+    $message .= $reset_url . "\n\nIf you did not request this, ignore this email.\n\n";
+    $message .= "Regards,\nTechwatt Team";
+    ScheduleEmail($email, 'Password Reset Request', nl2br($message));
+
+    return new WP_REST_Response([ 'success' => true, 'data' => ['message'  => 'Email exists, a password reset link has been sent.'] ], 200);
+}
 ?>

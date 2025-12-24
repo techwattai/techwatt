@@ -172,7 +172,7 @@ function fxn_bootcamp_submit() {
             $if2payMsg2 = ' You can make the payment later when the program begins.';
         }
 
-        PS_SendMail($email, 'Bootcamp Registration Received', "Dear $first_name $last_name,\n\nThank you for registering for the $bootcamp_type bootcamp. Your registration has been successfully received.\n\nOrder ID: $order_id\n\nWe will contact you with further details $if2payMsg.\n\nBest regards,\nTechwatt Team");
+        ScheduleEmail($email, 'Bootcamp Registration Received', "Dear $first_name $last_name,<p>Thank you for registering for the $bootcamp_type bootcamp. Your registration has been successfully received.</p><p>Order ID: $order_id</p><p>We will contact you with further details $if2payMsg.</p><p>Best regards,<br>Techwatt Team</p>");
 
         wp_send_json_success(['message' => 'Your bootcamp application has been submitted successfully.'.$if2payMsg2.' A confirmation email has been sent to your inbox.', 'url' => '']);return;
     }
@@ -200,7 +200,7 @@ function fxn_bootcamp_submit() {
             ]
         ]);
     //wp_redirect($session->url); exit;
-    PS_SendMail($email, 'Bootcamp Registration Received', "Dear $first_name $last_name,\n\nThank you for registering for the $bootcamp_type bootcamp. Your registration has been received.\n\nOrder ID: $order_id\n\nWe will contact you with further details regarding payment and next steps.\n\nBest regards,\nTechwatt Team");
+    ScheduleEmail($email, 'Bootcamp Registration Received', "Dear $first_name $last_name,<p>Thank you for registering for the $bootcamp_type bootcamp. Your registration has been received.</p><p>Order ID: $order_id</p><p>We will contact you with further details regarding payment and next steps.</p><p>Best regards,<br>Techwatt Team</p>");
 
     wp_send_json_success(['message' => 'Bootcamp successfully submitted. Pay processed. Check your email for confirmation.', 'url' => $session->url]);
 }

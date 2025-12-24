@@ -26,7 +26,8 @@ add_action('init', function () {
 
 // Hook into wp_body_open — runs immediately after <body>
 add_action( 'wp_body_open', function() {
-    echo '<span id="msgbox" style="position:absolute;top:11%;right:20px;z-index:100;background:#f5f5f5;padding:5px 10px;border-radius:5px;display:none;"></span>';
+    echo '<span id="msgbox" style="position:fixed;top:11%;right:20px;z-index:100;background:#f5f5f5;padding:5px 10px;border-radius:5px;display:none;"></span>';
+    echo '<div id="tw-popup-overlay" style="display:none;"><div id="tw-popup"><span class="tw-close">&times;</span><div class="tw-content"></div></div></div>';
 });
 
 define('PS_PLUGIN_FILE', __FILE__); //C:\xampp\htdocs\techwatty\wp-content\plugins\techwatt\techwatt.php (For activatn,reg,etc.)
@@ -34,25 +35,6 @@ define('PS_PLUGIN_URL', plugin_dir_url( __FILE__ ) ); //https://yourdomain.com/w
 define('PS_NoImage',plugins_url('assets/images/noimage.jpg', __FILE__));
 define('PS_PLUGIN_PATH', plugin_dir_path(__FILE__)); //C:\xampp\htdocs\techwatty\wp-content\plugins\techwatt\ (For includes,requires,etc.)
 
-/*
-define('PS_UDashboard', home_url('/portal'));
-define('PS_UProfile', home_url('/portal?profile'));
-define('PS_UEditProfile', home_url('/portal?editprofile'));
-define('PS_UChangePwd', home_url('/portal?chgpwd'));
-define('PS_Quizzes', home_url('/portal?quizzes'));
-define('PS_Testimonies', home_url('/portal?testimonies'));
-define('PS_AddTestimony', home_url('/portal?add-testimony'));
-define('PS_BookingOrders', home_url('/portal?booking-order'));
-define('PS_ProductOrders', home_url('/portal?product-order'));
-define('PS_KidsProjects', home_url('/portal?kids-projects'));
-define('PS_AddProject', home_url('/portal?add-project'));
-define('PS_LMS', 'https://lms.techwatt.com.ng/');
-define('PS_LogOut', home_url('/logout'));
-define('PS_Register', home_url('/signup'));
-define('PS_Signup', home_url('/signup'));
-define('PS_Shop', home_url('/shop'));
-define('PS_Login', home_url('/signmein'));
-*/
 function twStripeKeys() {
     $pk = get_option('tw_stripe_pk') ?? '';
     $sk = get_option('tw_stripe_sk') ?? '';
@@ -82,7 +64,7 @@ function twUrl($key) {
        'PS_TrialReg' => '/book-trial-class',
        'PS_Signup' => '/signup',
        'PS_Shop' => '/shop',
-       'PS_Login' => '/signmein',
+       'PS_Login' => '/signmein'
     ];
     return (strtolower($key) !== 'ps_lms') ? home_url($map[$key] ?? '/') : $map[$key];
 }
